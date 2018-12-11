@@ -188,6 +188,41 @@ MongoDB的默认数据库为"db"
         
 
 '''
+#MongoDB的查询操作之limit skip sort
+'''
+db.jerd.insertMany(
+                  [{"name":"python","price":19800},
+                    {"name":"go","price":17800},
+                    {"name":"linux","price":16800},
+				   ])
+
+1.limit 从第一条开始获取,指定获取的个数
+获取前两条：
+    db.jerd.find().limit(2)
+2.skip 跳过指定的个数
+获取第三条：
+    db.jerd.find().skip(2)
+limit和skip结合 skip的优先级高
+获取第二条和第三条数据
+    db.jerd.find().skip(1).limit(2)
+3.sort排序： mysql中使用order by排序
+    升序：
+        db.jerd.find().sort({"price":1}) 
+    降序：
+        db.jerd.find.sort({"price":-1}) 
+    pymongo操作sort时,使用 db.jerd.find.sort({"price":-1})会报错
+    正确用法：db.jerd.find.sort([("price",-1)])
+选取第二条第三条 并 按照 price 进行 升序排列
+db.jerd.find().skip(1).limit(2).sort({"price":1})
+结果：
+    {"name":"go","price":17800},
+    {"name":"python","price":19800},
+按照执行应该是：
+    {"name":"linux","price":16800},               
+    {"name":"go","price":17800},
+重点： Sort + Skip + Limit 是有执行优先级的  
+      优先 Sort 其次 Skip 最后 Limt
+'''
 
 #对Array Object的查询操作
 '''
@@ -234,42 +269,6 @@ db.jerd.updateOne({"username":"jerd","price.count":{$gt:160}},{$inc:{"price.$.co
 
 '''
 
-#MongoDB的查询操作之limit skip sort
-'''
-db.jerd.insertMany(
-                  [{"name":"python","price":19800},
-                    {"name":"go","price":17800},
-                    {"name":"linux","price":16800},
-				   ])
-
-1.limit 从第一条开始获取,指定获取的个数
-获取前两条：
-    db.jerd.find().limit(2)
-2.skip 跳过指定的个数
-获取第三条：
-    db.jerd.find().skip(2)
-limit和skip结合 skip的优先级高
-获取第二条和第三条数据
-    db.jerd.find().skip(1).limit(2)
-3.sort排序： mysql中使用order by排序
-    升序：
-        db.jerd.find().sort({"price":1}) 
-    降序：
-        db.jerd.find.sort({"price":-1}) 
-    pymongo操作sort时,使用 db.jerd.find.sort({"price":-1})会报错
-    正确用法：db.jerd.find.sort([("price",-1)])
-选取第二条第三条 并 按照 price 进行 升序排列
-db.jerd.find().skip(1).limit(2).sort({"price":1})
-结果：
-    {"name":"go","price":17800},
-    {"name":"python","price":19800},
-按照执行应该是：
-    {"name":"linux","price":16800},               
-    {"name":"go","price":17800},
-重点： Sort + Skip + Limit 是有执行优先级的  
-      优先 Sort 其次 Skip 最后 Limt
-'''
-
 #练习题
 '''
 STUDENT_LIST = [
@@ -295,6 +294,7 @@ STUDENT_LIST = [
 
 
 '''
+
 
 #在python中操作mongodb pymongodb
 '''
@@ -325,4 +325,5 @@ db.authenticate("account", "password")
     
 
 
+<<<<<<< HEAD
 '''
