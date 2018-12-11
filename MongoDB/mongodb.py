@@ -159,7 +159,6 @@ MongoDB的默认数据库为"db"
         db.jerd.updateMany({"username":"jerd"},{'$pop':{"test_list":-1}})
 '''
 
-
 #MongoDB的查询操作之关键字(条件操作符)
 '''
 1.关键字:$lt $gt $gte $lte $in  $type
@@ -270,6 +269,33 @@ db.jerd.find().skip(1).limit(2).sort({"price":1})
 重点： Sort + Skip + Limit 是有执行优先级的  
       优先 Sort 其次 Skip 最后 Limt
 '''
+
+#练习题
+'''
+STUDENT_LIST = [
+    {"username": "小黑", "age": 20, "gender": "男", "hobby": ["女孩", "王者荣耀"],
+     "course": [{"name": "Python", "scour": 60},
+                {"name": "JavaScript", "scour": 59}]},
+    {"username": "小白", "age": 21, "gender": "女", "hobby": ["男孩", "王者荣耀"],
+     "course": [{"name": "Python", "scour": 80},
+                {"name": "JavaScript", "scour": 99}]}
+]
+# 小黑改为小帅帅 + 小白改为小漂漂
+# 小帅帅,小漂漂,原有年龄+5岁
+# 小帅帅的hobby + 吃鸡
+# 小漂漂的hobby + 奇迹暖暖
+# 小帅帅和小漂漂 加入学科HTML 分数为 70
+# 查询爱好"女孩"的学生性别
+# 查询爱好"奇迹暖暖"的学生名称
+# 小帅帅和小漂漂 谁有60分以下的课程
+# 小帅帅和小漂漂 谁有80分以上的课程
+#  小帅帅和小漂漂 谁有60分以下的课程 并显示课程名 分数 姓名
+# 小帅帅和小漂漂 谁有80分以上的课程 并显示课程名 分数 姓名
+# 学科中加入comment : "优秀"  ( <60 : 不及格, >=60 <80: 中 , >=80 <90: 良 , >=90 优)	
+
+
+'''
+
 #在python中操作mongodb pymongodb
 '''
 #连接pymongo
@@ -297,31 +323,6 @@ db.authenticate("account", "password")
     单条：find_one()
     所有：find()  #值为生成器
     
-
-
-'''
-#练习题
-'''
-STUDENT_LIST = [
-    {"username": "小黑", "age": 20, "gender": "男", "hobby": ["女孩", "王者荣耀"],
-     "course": [{"name": "Python", "scour": 60},
-                {"name": "JavaScript", "scour": 59}]},
-    {"username": "小白", "age": 21, "gender": "女", "hobby": ["男孩", "王者荣耀"],
-     "course": [{"name": "Python", "scour": 80},
-                {"name": "JavaScript", "scour": 99}]}
-]
-# 小黑改为小帅帅 + 小白改为小漂漂
-# 小帅帅,小漂漂,原有年龄+5岁
-# 小帅帅的hobby + 吃鸡
-# 小漂漂的hobby + 奇迹暖暖
-# 小帅帅和小漂漂 加入学科HTML 分数为 70
-# 查询爱好"女孩"的学生性别
-# 查询爱好"奇迹暖暖"的学生名称
-# 小帅帅和小漂漂 谁有60分以下的课程
-# 小帅帅和小漂漂 谁有80分以上的课程
-#  小帅帅和小漂漂 谁有60分以下的课程 并显示课程名 分数 姓名
-# 小帅帅和小漂漂 谁有80分以上的课程 并显示课程名 分数 姓名
-# 学科中加入comment : "优秀"  ( <60 : 不及格, >=60 <80: 中 , >=80 <90: 良 , >=90 优)	
 
 
 '''
