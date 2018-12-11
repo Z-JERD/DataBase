@@ -296,7 +296,7 @@ STUDENT_LIST = [
 '''
 
 
-#在python中操作mongodb pymongodb
+#在python中操作mongodb
 '''
 #连接pymongo
 
@@ -322,8 +322,4 @@ db.authenticate("account", "password")
 2.查
     单条：find_one()
     所有：find()  #值为生成器
-    
-
-
-<<<<<<< HEAD
 '''
