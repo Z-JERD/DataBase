@@ -269,6 +269,83 @@ db.jerd.updateOne({"username":"jerd","price.count":{$gt:160}},{$inc:{"price.$.co
 
 '''
 
+#MongoDB的索引操作
+'''
+1.插入10w条数据，使用explain进行性能分析
+    db.demo.find({'title':'test1'}).explain()
+    返回结果：
+        cursor:”BasicCursor" 查找采用的是“表扫描”
+        nscanned: 这里是10w 数据库浏览了10w个文档
+        n:         这里是1，也就是最终返回了1个文档。
+        millis:  114  总共耗时114毫秒。 
+2.建立索引：
+    1. db.demo.ensureIndex({'title':1})  创建索引字段title 1为指定按升序创建索引，-1按降序来创建索引
+    2. 组合索引：db.demo.ensureIndex({"title":1,"description":-1}) 
+    3.唯一索引：db.demo.ensureIndex({"title":1},{"unique":true}) 
+    4.db.demo.ensureIndex({"title":1,"description":-1},{background: true})) 在后台创建索引
+3.查看索引:
+    db.demo..getIndexes()
+4.删除索引：
+    db.demol.dropIndexes() 删除所有索引
+    db.demol.dropIndexes("title_1") 删除指定索引
+5.指定索引查询方案
+    使用组合索引时优化器会选择往往是最优的方案
+    如创建组合索引：db.person.ensureIndex({'name':1,'birthday':1})
+                    查询时优化器使用:name_1_biryhday_1
+    指定查询方案：hint
+        db.person.find({'birthday':"1995_01_11,'name':'jerd'}).hint({'birythday':1,'name':1})
+        此时查询时优化器使用:biryhday_1_name_1
+'''
+
+#在python中操作mongodb
+'''
+#连接pymongo
+1.pip install pymongo==3.1.1
+2.from pymongo import MongoClient
+    client = MongoClient('localhost', 27017)
+3.选择制定的数据库 账号密码认证
+    db=client.story
+    db.authenticate("account", "password")
+4.选择操作的表 db.video
+
+#增删改查
+
+1.增：
+    无限制:insert()
+    单条：insert_one()
+    多条：insert_many()
+   
+2.删除：
+    单条：delete_one
+    所有满足条件的：delete_many
+    删除表：db.demo.drop()
+    清空：remove()
+    
+3.改:  
+    单条：update_one
+    所有：update_many
+4.查
+    单条：find_one()
+    所有：find()  #值为生成器
+    查找特定的字段 db.demo.find(fields = ["title", "num"])
+    
+5.使用索引:
+    1.查询分析：
+        db.demo.find({'title':'test1'}).explain('executionStats')
+        1.executionSuccess 是否执行成功
+        2.nReturned 查询的返回条数
+        3.executionTimeMillis 整体执行时间
+        4.totalKeysExamined 索引扫描次数
+        5.totalDocsExamined document扫描次数
+    
+    2.创建索引：db.demo.ensure_index([('title',1)])
+                组合索引：db.demo.ensure_index([('title',1),('num':1])
+    3.删除索引：
+        删除指定索引:db.demo.drop_index([('title',1),('num':1])
+        删除所有索引：db.demo.drop_indexes()
+    
+'''
+
 #练习题
 '''
 STUDENT_LIST = [
@@ -291,35 +368,4 @@ STUDENT_LIST = [
 #  小帅帅和小漂漂 谁有60分以下的课程 并显示课程名 分数 姓名
 # 小帅帅和小漂漂 谁有80分以上的课程 并显示课程名 分数 姓名
 # 学科中加入comment : "优秀"  ( <60 : 不及格, >=60 <80: 中 , >=80 <90: 良 , >=90 优)	
-
-
-'''
-
-
-#在python中操作mongodb
-'''
-#连接pymongo
-
-1.pip install pymongo==3.1.1
-2.from pymongo import MongoClient
-client = MongoClient('localhost', 27017)
-3.选择制定的数据库 账号密码认证
-db=client.story
-db.authenticate("account", "password")
-4.选择操作的表 db.video
-
-#增删改查
-
-1.增：
-    单条：insert_one()
-    多条：insert_many()
-2.删除：
-    单条：delete_one
-    所有满足条件的：delete_many
-改:  
-    单条：update_one
-    所有：update_many
-2.查
-    单条：find_one()
-    所有：find()  #值为生成器
 '''
