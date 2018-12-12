@@ -269,6 +269,13 @@ db.jerd.updateOne({"username":"jerd","price.count":{$gt:160}},{$inc:{"price.$.co
 
 '''
 
+#MongoDB的索引操作
+"""
+
+
+
+"""
+
 #练习题
 '''
 STUDENT_LIST = [
@@ -323,3 +330,5 @@ db.authenticate("account", "password")
     单条：find_one()
     所有：find()  #值为生成器
 '''
+#this is a test
+
