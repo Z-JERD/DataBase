@@ -1,161 +1,119 @@
-##################pymysql的安装###########
+
+##################pymysql的安装##############
 '''
 PyMySQL 是在 Python3.x 版本中用于连接 MySQL 服务器的一个库，Python2中则使用mysqldb。
 在python安装pymysql pip install pymysql 报错时
 用pip install -i http://pypi.douban.com/simple/ pymysql
 或者 pip install -i http://pypi.douban.com/simple/ pymysql pymysql 安装
 '''
-##################pymysql的使用###########
+##################pymysql的使用##############
 '''
 import pymysql
-#连接databases
-conn =pymysql.connect(host="127.0.0.1", #数据库地址
-                      port=3306,         #端口号
-                      user="root",
-                      password="123456789",
-                      database="jerd",
-                      charset="utf8"     #编码注意不用-，不能写成utf-8
-                      )
-#得到一个可以执行SQL语句的光标对象
-cursor =conn.cursor()  #默认返回元素
-# 定义要执行的SQL语句
-sql='select * from useinfo where name=%s and pwd=%s;'
-# 执行SQL语句
-cursor.execute(sql)
-# 关闭光标对象
-cursor.close()
-# 关闭数据库连接
-conn.close()
-'''
-#################pymysql注入#############
-'''
-sql注入
-1. 我们执行的sql语句是我拿用户输入的内容动态拼接的
-2. 我没有办法控制用户的输入内容  
-解决办法:
-让pymysql帮我拼接字符串的SQL语句
-(其内部做了一些特殊符号的过滤)
-# 定义一个要执行的SQL语句,用%s定义占位符
-sql = 'select * from userinfo where name=%s and pwd=%s;'
-# 帮我拼接字符串的SQl语句,并且去数据库执行
-ret = cursor.execute(sql, [name, pwd])
-'''
-################增 删 改 查###############
-#增 删 改等操作完成后都要提交事务 conn.commit()
-#########增加操作######
-'''
-#1.逐个增加操作
-sql='insert into useinfo (name,pwd) VALUES (%s,%s)'
-# cursor.execute(sql,[name,pwd])
-#2.批量增加
-data=[
-    ("xiaodan","dandan"),
-    ("dan","960926")
-        ]
-cursor.executemany(sql,data)
-conn.commit()
-3.异常回滚
-import pymysql
-conn = pymysql.connect(host="127.0.0.1", #数据库地址
-                      port=3306,         #端口号
-                      user="root",
-                      password="123456789",
-                      database="jerd",
-                      charset="utf8"     #编码注意不用-，不能写成utf-8
-                      )
-cursor =conn.cursor()
-sql='insert into useinfo(name,pwd) VALUES(%s,%s);'
-# cursor.execute(sql,["alex"])  #TypeError: not enough arguments for format string
-try:
-    cursor.execute(sql,["jock",456])
-    cursor.execute(sql, ["fei"])
-    conn.commit()
-except Exception as e:
-    print(str(e))
-    # 有异常就回滚
-    conn.rollback()
-cursor.close()
-conn.close()
-4.获取最后一个id
-last_id=cursor.lastrowid
-print("最后的id是：",last_id)
-'''
-#########修改操作######
-'''
-sql='update useinfo set pwd=%s where name=%s;'
-# cursor.execute(sql,["dan521","dan"]) #注意顺序
-'''
-#########删除操作######
-'''
-sql='delete from useinfo where name=%s;'
-cursor.execute(sql,["dan"])
-conn.commit()
-cursor.close()
-conn.close()
-'''
-#########查询操作######
-'''
-sql='select * from useinfo where name=%s and pwd=%s;'
-ret=cursor.execute(sql,[name,pwd])
-if ret:
-    print("登陆成功")
-else:print("登录失败")
-如果前面已有查询语句，在没查询的内容下再进行查找
-1. 查一条     --> cursor.fetchone()
-2. 查所有     --> cursor.fetchall()
-3. 查指定条数 --> cursor.fetchmany(3)
-4. 移动光标
-    1. cursor.scroll(1, mode="absolute")  光标按绝对位置移动1
-    2. cursor.scroll(1, mode="relative")  光标按照相对位置(当前位置)移动1
-    3.cursor.scroll(-1,mode="relative") #光标上移，只能使用relative
-import pymysql
-conn =pymysql.connect(host="127.0.0.1", #数据库地址
-                      port=3306,         #端口号
-                      user="root",
-                      password="123456789",
-                      database="jerd",
-                      charset="utf8"     #编码注意不用-，不能写成utf-8
-                      )
-cursor =conn.cursor()
-sql='select name,pwd from useinfo;'
-cursor.execute(sql)
-
-# print("查询指定个数")
-# ret=cursor.fetchmany(2)  #显示第二条第三条 并不是第一条第二条
-# print(ret)
-# print("查询所有")  #显示剩下的所有
-# ret=cursor.fetchall()
-# print(ret)
-#光标移动
-cursor.scroll(1, mode="absolute") #指到第几个数据，光标就会移到哪个数据后
-ret=cursor.fetchone()   #光标移到第一条数据后，显示第二条数据
-print(ret)
-cursor.scroll(1,mode="relative")  #当前光标在第二条数据后，移动一个到第三条数据后，取到第四条数据
-ret=cursor.fetchone()
-print(ret)
-cursor.scroll(-1,mode="relative") #光标上移，只能使用relative
-ret=cursor.fetchone()
-print(ret)
-cursor.close()
-conn.close()
-'''
-##################返回字典格式数据#############
-'''
-import pymysql
-conn =pymysql.connect(host="127.0.0.1", #数据库地址
-                      port=3306,         #端口号
-                      user="root",
-                      password="123456789",
-                      database="jerd",
-                      charset="utf8"     #编码注意不用-，不能写成utf-8
-                      )
-# cursor =conn.cursor() 返回元祖类型的数据 ((value1,value2),(value1,value2))
-cursor =conn.cursor(cursor=pymysql.cursors.DictCursor) #返回字典类型的数据 [{key1:value1,key2:value2},{key1:value1,key2:value2}]
-sql='select name,pwd from useinfo;'
-cursor.execute(sql)
-ret=cursor.fetchmany(2)
-print(ret)
-cursor.close()
-conn.close()
+1.连接配置信息：       
+    config = { 
+        'host':'127.0.0.1', 
+        'port':3306, 
+        'user':'root', 
+        'password':'123', 
+        'db':'t1', 
+        'charset':'utf8mb4',         
+        'cursorclass':pymysql.cursors.DictCursor, 
+        'connect_timeout': 3.0,
+        'autocommit': True   #自动提交
+    }        
+2.建立连接  
+    connection = pymysql.connect(**config)   
+3.创建游标
+    conn = connection.cursor()  
+4.定义要执行的SQL语句
+    sql='select * from useinfo where name=%s and pwd=%s;'
+5.执行SQL，并返回收影响行数，如果发生错误就回滚
+    try:
+        
+        row = conn.execute(sql, args)
+        #connection.commit()
+    
+    except:
+        conn.rollback()
+6.关闭光标对象
+    conn.close()
+7.关闭数据库连接
+    connection.close()
 '''
 
+##################增删改查操作##############
+"""
+ 如果配置信息中为定义自动提交，则执行INSERT UPDATE DELETE SQL语句后需要手动提交才会connection.commit() 操作才会生效
+ cursor =conn.cursor() 默认返回元祖类型的数据,定义返回字典的格式  cursor =conn.cursor(cursor=pymysql.cursors.DictCursor)
+
+1.INSERT:
+    sql = "INSERT INTO person(name,age) VALUES(%s,%s)"
+    逐个增加：  cursor.execute(sql,("jerry",20))
+    批量增加：  cursor.executemany(sql,(('python',3),('java',4)))
+
+2.UPDATE: 
+     sql='UPDATE useinfo SET pwd=%s where name=%s;'
+     cursor.execute(sql,("JERRY","DAN"))    需保证值的顺序
+     
+3.DELETE:   
+    sql='DELETE from useinfo where name=%s;'
+    cursor.execute(sql,("dan"))
+    
+4.SELECT:
+    查询不存在的数据，不会报错，返回的结果为空
+    对于select操作，执行sql后获取结果需要额外的操作
+    conn.fetchone()     取得一条数据
+    conn.fetchmany(n)   取得n条数据
+    conn.fetchall()    取得全部的数据
+
+
+rowcount    sql操作的返回的数据行数或影响行数    
+description     列名的相关信息,    查询操作时具有的属性
+    使用场景：判定SQL语句是不是查询操作
+        例：
+             row = conn.execute(sql, args)
+             if conn.description:conn.fetchone()
+        
+
+lastrowid       最新自增ID          添加操作时的属性   
+    使用场景：新增数据后，获取到最新的id
+        例:
+            if not conn.lastrowid:
+                return conn.lastrowid
+"""
+##################异常种类##############
+"""
+异常	                    描述
+Warning	                当有严重警告时触发，例如插入数据是被截断等等。必须是 StandardError 的子类。
+Error	                警告以外所有其他错误类。必须是 StandardError 的子类。
+InterfaceError	        当有数据库接口模块本身的错误（而不是数据库的错误）发生时触发。 必须是Error的子类。
+DatabaseError	        和数据库有关的错误发生时触发。 必须是Error的子类。
+DataError	            当有数据处理时的错误发生时触发，例如：除零错误，数据超范围等等。 必须是DatabaseError的子类。
+OperationalError	    指非用户控制的，而是操作数据库时发生的错误。例如：连接意外断开、 数据库名未找到、事务处理失败、内存分配错误等等操作数据库是发生的错误。 必须是DatabaseError的子类。
+IntegrityError	        完整性相关的错误，例如外键检查失败等。必须是DatabaseError子类。
+InternalError	        数据库的内部错误，例如游标（cursor）失效了、事务同步失败等等。 必须是DatabaseError子类。
+ProgrammingError	    程序错误，例如数据表（table）没找到或已存在、SQL语句语法错误、 参数数量错误等等。必须是D
+
+
+
+1.pymysql.err.InternalError:
+        1. insert时，数值的数据类型和定义的类型不同时，发生此异常
+        2. insert时，列名和列值数量不一致
+        3. 连接的数据库不存在
+
+    
+2.pymysql.err.ProgrammingError:
+        SQL语句语法错误 参数数量错误
+        例：
+            sql = "insert into person values(%s,%s)"
+            cursor.execute(sql, ('zhao'))
+3.pymysql.err.OperationalError
+        操作数据库时发生的错误  如：连接意外断开、 数据库密码错误 
+4.pymysql.err.IntegrityError
+        如某个字段设置了unique,但添加重复值，会抛出此异常
+
+5.查看具体的异常信息
+    import traceback
+    exc = traceback.format_exc()
+
+"""
