@@ -1,13 +1,18 @@
 
 ##################pymysql的安装##############
-'''
+
+"""
 PyMySQL 是在 Python3.x 版本中用于连接 MySQL 服务器的一个库，Python2中则使用mysqldb。
 在python安装pymysql pip install pymysql 报错时
 用pip install -i http://pypi.douban.com/simple/ pymysql
 或者 pip install -i http://pypi.douban.com/simple/ pymysql pymysql 安装
-'''
-##################pymysql的使用##############
-'''
+
+
+"""
+
+##################pymysql的使用###############
+
+"""
 import pymysql
 1.连接配置信息：       
     config = { 
@@ -39,9 +44,13 @@ import pymysql
     conn.close()
 7.关闭数据库连接
     connection.close()
-'''
 
-##################增删改查操作##############
+
+"""
+
+
+##################增删改查操作#################
+
 """
  如果配置信息中为定义自动提交，则执行INSERT UPDATE DELETE SQL语句后需要手动提交才会connection.commit() 操作才会生效
  cursor =conn.cursor() 默认返回元祖类型的数据,定义返回字典的格式  cursor =conn.cursor(cursor=pymysql.cursors.DictCursor)
@@ -81,7 +90,47 @@ lastrowid       最新自增ID          添加操作时的属性
             if not conn.lastrowid:
                 return conn.lastrowid
 """
-##################异常种类##############
+
+####################事务操作###################
+
+"""
+
+MySQL默认使用autocommit模式，也就是说，当你执行一个更新操作后，MySQL会立刻将结果进行提交。关闭自动提交命令为：set autocommit=0;
+
+如果配置信息中开启了自动提交设置,则事务会无效
+
+import pymysql
+import traceback
+
+conn =pymysql.connect(host="10.110.1.230",
+                      port=3306,
+                      user="root",
+                      password="123456789",
+                      database="zgf",
+                      charset="utf8mb4" ,
+                      cursorclass=pymysql.cursors.DictCursor,
+                      connect_timeout=3.0,
+                      #autocommit= True
+                      )
+cursor =conn.cursor()
+
+sq1_1 = "update index_demo set remarks = '测试_2' where id = 1"
+sql_2 = "update index_demo set card= %s where id = %s"
+
+try:
+    r = cursor.execute(sq1_1)
+    r = cursor.execute(sql_2,("测试",2))
+except Exception as e:
+    conn.rollback()
+    err = traceback.format_exc()
+    print(err)
+else:
+    conn.commit()
+
+"""
+
+#####################异常种类##################
+
 """
 异常	                    描述
 Warning	                当有严重警告时触发，例如插入数据是被截断等等。必须是 StandardError 的子类。
