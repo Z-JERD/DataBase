@@ -317,6 +317,11 @@ create table jerd(
     order by 要写在select语句末尾
     1.select name from jerd order by salary ASC;
     2.select * from person where salary >5000 order by salary DESC;
+    
+    order by id desc,time desc
+
+先是按 id 降序排列  如果 id 字段 有些是一样的话   再按time 降序排列 (前提是满足id降序排列)
+
 7.聚合函数
     1.COUNT() 2.SUM() 3.AVG()  4.MAX() 5.MIN()
     select 聚合函数(字段) from 表名;
