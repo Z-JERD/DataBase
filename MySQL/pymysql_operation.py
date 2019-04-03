@@ -167,7 +167,7 @@ ProgrammingError	    程序错误，例如数据表（table）没找到或已存
 
 """
 
-##################################in / not in 的使用#############################################
+#####################in / not in 的使用################
 """
 操作字段的类型为int：
     错误的写法：
@@ -201,3 +201,59 @@ ProgrammingError	    程序错误，例如数据表（table）没找到或已存
         sql = "select * from goods where name in (%s)"
         row = cursor.execute(sql, (b,) )
   """
+
+#####################Json字段##################
+
+"""
+查询字段类型为JSON的值 表中数据如下：
+    +----+-------+-----+-------+------------------+
+    | id | name  | age | count | content          |
+    +----+-------+-----+-------+------------------+
+    |  1 | jerd  |  30 |   200 | {"uid1": "zhao"} |
+    |  2 | jerry |  25 |    22 | NULL             |
+    |  3 | zhao  |  22 |   100 | NULL             |
+    |  4 | fei   |  21 |   222 | NULL             |
+    |  5 | zhao  |  20 |   100 | {"uid5": null}   |
+    +----+-------+-----+-------+------------------+
+
+1.查询content不为空的数据
+     mysql> select * from goods where content is not null;
+    +----+------+-----+-------+------------------+
+    | id | name | age | count | content          |
+    +----+------+-----+-------+------------------+
+    |  1 | jerd |  30 |   200 | {"uid1": "zhao"} |
+    |  5 | zhao |  20 |   100 | {"uid5": null}   |
+    +----+------+-----+-------+------------------+
+
+2.查询id为1的的content的value值是否为null，不为null 打印数据
+    mysql> select * from goods where content -> '$.uid1' is not null;
+    +----+------+-----+-------+------------------+
+    | id | name | age | count | content          |
+    +----+------+-----+-------+------------------+
+    |  1 | jerd |  30 |   200 | {"uid1": "zhao"} |
+    +----+------+-----+-------+------------------+
+    
+    mysql> select * from goods where content -> '$.uid1' is  null;
+    +----+-------+-----+-------+----------------+
+    | id | name  | age | count | content        |
+    +----+-------+-----+-------+----------------+
+    |  2 | jerry |  25 |    22 | NULL           |
+    |  3 | zhao  |  22 |   100 | NULL           |
+    |  4 | fei   |  21 |   222 | NULL           |
+    |  5 | zhao  |  20 |   100 | {"uid5": null} |
+    +----+-------+-----+-------+----------------+
+    
+PyMySQL 传参查询
+    SQL = "select * from goods where content -> '$.uid%s' is not null"
+    ROW = cursor.execute(SQL, (5,))
+    
+    Pro = cursor.fetchall()
+    print(Pro[0]['content'], type(Pro[0]['content']))       <class 'str'>
+    print(type(json.loads(Pro[0]['content'])))              <class 'dict'>
+
+添加JSON数据：
+    sql = "insert into goods(name, age, count, content) values(%s, %s, %s, %s)"
+    args = ('ruby', 19, 200, json.dumps({'uid6': 'ruby/19'}))
+    row = cursor.execute(sql, args)
+
+"""
