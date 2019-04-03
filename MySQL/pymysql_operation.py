@@ -166,3 +166,38 @@ ProgrammingError	    程序错误，例如数据表（table）没找到或已存
     exc = traceback.format_exc()
 
 """
+
+##################################in / not in 的使用#############################################
+"""
+操作字段的类型为int：
+    错误的写法：
+        sql = 'select * from goods where id in %s'%(('1,2'))
+        
+        未知变量%s需要用()包起来
+
+    拼接可以成功：   
+        a = [1, 2]
+        b = ",".join([str(i) for i in a])
+        sql = "select * from goods where id in (%s)"%b
+        row = cursor.execute(sql )
+        
+    传参执行失败;
+        sql = "select * from goods where id in (%s)"
+        print(sql)
+        row = cursor.execute(sql,(b,) )
+
+
+操作的字段为char类型：
+    sql = "select * from goods where name in ('jerd','jerry')"
+    等同于：
+        sql = "select * from goods where name in (%s)"%("'jerry', 'jerd'")   
+    
+    a = ['jerry', 'jerd']
+    b = ",".join(["'" + i + "'" for i in a])
+    
+    SQL拼接能够成功：
+        sql = "select * from goods where name in (%s)"% b
+    传参的方式会失败
+        sql = "select * from goods where name in (%s)"
+        row = cursor.execute(sql, (b,) )
+  """
