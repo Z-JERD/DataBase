@@ -312,6 +312,10 @@ MySQL 一条语句实现若记录存在则更新，不存在则插入
         错误的SQL： SELECT * FROM PERSON WHERE PHONE = NULL
         正确的SQL:  SELECT * FROM PERSON WHERE PHONE IS NULL
         用 “a=null”，这个结果永远为 UnKnown，where 和 having 中，UnKnown 永远被视为 false
+	
+   SUBSTR：
+   	substr(string1, 1, 2) 就是 截取 字符串string1 第1位开始2位长度的 子串
+    	select name from jerd where age=18 AND SUBSTR (phone_num, 1, 3)  == '152' 手机号的前三位是152
 
 3.区间查询 between .. and ...
     between 10 and 20 获取10到20区间的内容
