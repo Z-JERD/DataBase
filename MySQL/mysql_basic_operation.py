@@ -255,7 +255,9 @@ create table jerd(
             INSERT INTO users () VALUES();   将使用表中每一列的默认值来插入新记录
     INSERT语句允许一次插入多条数据，set不行
         INSERT INTO users (name, age) VALUES('jerd',25),('jerry',25)
-    
+
+修改和删除的数据若不存在,执行SQL相当于执行一条空语句,不会报错
+
 2.更新操作 update
     更新符合条件字段3的数据 
         update 表 set 字段1= '值1', 字段2='值2' ... where 字段3 = 值3;
@@ -466,94 +468,6 @@ ORDER BY total_orders DESC;
 9.order by----10.limit
 
 """
-
-
-
-###############################建表示例#############################
-
-"""
-create table class(
-	cid int not null auto_increment primary key,
-	caption varchar(250) not null
-)engine=innodb default charset=utf8;
-
-create table student(
-	sid int not null auto_increment primary key,
-	sname varchar(250) not null,
-	sex enum('男','女') not null default '男',
-	class_id int,
-	CONSTRAINT fk_cid FOREIGN KEY(class_id) REFERENCES class(cid)
-)engine=innodb default charset=utf8;
-
-create table teacher(
-	tid int not null auto_increment primary key,
-	tname varchar(10)
-)engine=innodb default charset=utf8;
-
-create table course(
-	cid int not null auto_increment PRIMARY KEY,
-	cname VARCHAR(50) not null,
-	teacher_id int DEFAULT NULL,
-	CONSTRAINT fk_tid FOREIGN KEY(teacher_id ) REFERENCES teacher(tid)
-)ENGINE = INNODB DEFAULT charset=utf8;
-
-create table score(
-	sid int not null auto_increment primary key,
-	number int,
-	student_id int,
-	course_id int ,
-	CONSTRAINT fk_student FOREIGN KEY(student_id) REFERENCES student(sid),
-    CONSTRAINT fk_course FOREIGN KEY(course_id) REFERENCES course(cid)
-)engine=innodb default charset=utf8;
-
-"""
-
-#创建Mysql表：User用户表，Order订单表，Orderdetail订单详情，item商品表
-"""
-CREATE TABLE user (
-  id bigint(32) NOT NULL AUTO_INCREMENT COMMENT '客户id(主键)',
-  username varchar(32) NOT NULL COMMENT '客户名称',
-  birthday date DEFAULT NULL COMMENT '客户生日',
-  sex char(1) DEFAULT NULL COMMENT '客户性别',
-  address varchar(256) DEFAULT NULL COMMENT '客户地址',
-  PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE orders (
-  id bigint(32) NOT NULL AUTO_INCREMENT COMMENT '客户id(主键)',
-  user_id bigint(32) NOT NULL COMMENT '下单客户id(外键)',
-  number varchar(32) NOT NULL COMMENT '订单号',
-  createtime datetime NOT NULL COMMENT '创建时间',
-  note varchar(32) DEFAULT NULL COMMENT '备注',
-  PRIMARY KEY (id),
-  CONSTRAINT FK_user FOREIGN KEY (user_id) REFERENCES user (id)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE item (
-  id bigint(32) NOT NULL AUTO_INCREMENT COMMENT 'id(主键)',
-  name varchar(32) NOT NULL COMMENT '商品名称',
-  price float(10,1) NOT NULL COMMENT '商品价格',
-  picture varchar(512) DEFAULT NULL COMMENT '商品图片',
-  createtime datetime DEFAULT NULL COMMENT '生产日期',
-  detail text COMMENT '商品描述',
-  PRIMARY KEY (id)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE orderdetail (
-  id bigint(32) NOT NULL AUTO_INCREMENT COMMENT 'id(主键)',
-  order_id bigint(32) NOT NULL COMMENT '订单id',
-  item_id bigint(32) NOT NULL COMMENT '商品id',
-  item_num bigint(32) DEFAULT NULL COMMENT '商品购买数量',
-  PRIMARY KEY (id),
-  CONSTRAINT FK_orders FOREIGN KEY (order_id) REFERENCES orders (id),
-  CONSTRAINT FK_item FOREIGN KEY (item_id) REFERENCES item (id)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
-"""
-
-
 
 ###############################MySQL数据的备份##########################
 
