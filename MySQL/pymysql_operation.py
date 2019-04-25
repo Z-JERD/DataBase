@@ -192,11 +192,13 @@ ProgrammingError	    程序错误，例如数据表（table）没找到或已存
     等同于：
         sql = "select * from goods where name in (%s)"%("'jerry', 'jerd'")   
     
-    a = ['jerry', 'jerd']
-    b = ",".join(["'" + i + "'" for i in a])
-    
-    SQL拼接能够成功：
-        sql = "select * from goods where name in (%s)"% b
+    对于varchar类型的数据：
+        a = ['jerry', 'jerd', 'jockfi']
+        b = ",".join(["'" + i + "'" for i in a])
+        SQL拼接能够成功：
+            sql = "select * from goods where name in (%s)"% b
+        或者：
+            sql = "select * from goods where name in ('%s')" % ("','".join(a))
     传参的方式会失败
         sql = "select * from goods where name in (%s)"
         row = cursor.execute(sql, (b,) )
