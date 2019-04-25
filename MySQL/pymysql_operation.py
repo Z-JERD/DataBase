@@ -259,6 +259,7 @@ PyMySQL 传参查询
 """
 
 #####################select中if的用法##################
+"""
 
 if(sex=0,'女','男') as sex 如果sex等于0 则显示为女 否则显示为男
 
@@ -308,3 +309,4 @@ mysql> select id,if(status=3,'通过','未通过') as chech_status from goods;
     +----+--------------+
     8 rows in set (0.00 sec)
 
+"""
