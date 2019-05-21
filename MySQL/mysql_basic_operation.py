@@ -60,12 +60,24 @@
         alter table 表名 add 字段名 类型 约束;
         alter table jerd add age int not null after name;
         在name字段后添加age字段
+	
+	添加多个字段
+	alter table `pro_secondary_settlement` add (
+  		`financial_id` JSON DEFAULT NULL COMMENT '非院线放映方绑定当前项目对应的财务信息 {1:True, 2:True}',
+ 		`rent_income` decimal(20,2) DEFAULT NULL COMMENT '非院线放映方对应的片租收入',
+  		`bind_imprest` int(11) DEFAULT '0' COMMENT '非院线放映方是否绑定预付款：0否，1是'
+	)
+	
     2.修改表字段
         alter table student modify 字段 varchar(100) null;
         alter table student change 旧字段 新字段 int not null default 0;
         change 可以改变字段名字和属性 modify只能改变字段的属性
     3.删除表字段
         alter table jerd drop name;
+	
+	删除多个字段
+	alter table ppt_slide drop name, drop slide_date;
+    
     4.更新表名称：
         rename table jerd to jerry；
 
