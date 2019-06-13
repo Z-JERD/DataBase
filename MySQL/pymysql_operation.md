@@ -241,6 +241,46 @@
     args = ('ruby', 19, 200, json.dumps({'uid6': 'ruby/19'}))
     row = cursor.execute(sql, args)
 
+## json_extract 和 json_unquote
+   
+    mysql> select json_extract(chain_address,'$.sheng'),json_extract(chain_address,'$.shi')  from chains;
+    +---------------------------------------+-------------------------------------+
+    | json_extract(chain_address,'$.sheng') | json_extract(chain_address,'$.shi') |
+    +---------------------------------------+-------------------------------------+
+    | "河南省"                              | "驻马店市"                          |
+    +---------------------------------------+-------------------------------------+
+    
+    等同于：
+    mysql> select chain_address -> '$.sheng', chain_address -> '$.shi'  from chains;
+    +----------------------------+--------------------------+
+    | chain_address -> '$.sheng' | chain_address -> '$.shi' |
+    +----------------------------+--------------------------+
+    | "河南省"                   | "驻马店市"               |
+
+
+
+    `chain_address` json DEFAULT NULL COMMENT '地址数据：{sheng":"xx","shi":"xx","xian":"xx","zhen":"xx","street":"xxx"}',
+    `sheng` varchar(20) GENERATED ALWAYS AS (json_unquote(json_extract(`chain_address`,'$.sheng'))) VIRTUAL,
+    
+    其中：
+        `sheng` varchar(20) GENERATED ALWAYS AS (json_unquote(json_extract(`chain_address`,'$.sheng'))) VIRTUAL,
+        等同于 `sheng` varchar(20) GENERATED ALWAYS AS (json_extract(`chain_address`,'$.sheng')) VIRTUAL,
+    
+    alter table chains modify `sheng` json  GENERATED ALWAYS AS (json_unquote(json_extract(`chain_address`,'$.sheng'))) VIRTUAL;
+
+        mysql> insert into chains(name,chain_address) values('河南省','{"sheng":"河南省","shi":"驻马店市","xian":"xx县","zhen":"xx乡","street":"xx村"}');
+        ERROR 3140 (22032): Invalid JSON text: "Invalid value." at position 0 in value for column 'chains.sheng'
+        
+        mysql> insert into chains(name,chain_address) values('河南省','{"sheng":{"pro":"河南省"},"shi":"xx市","xian":"xx县","zhen":"xx乡","street":"xx村"}');
+        Query OK, 1 row affected (0.00 sec)   
+
+
+    alter table chains modify `sheng` json  GENERATED ALWAYS AS (json_extract(`chain_address`,'$.sheng')) VIRTUAL;
+        mysql> insert into chains(name,chain_address) values('河南省','{"sheng":"河南省","shi":"xx市","xian":"xx县","zhen":"xx乡","street":"xx村"}');
+        Query OK, 1 row affected (0.00 sec)  		type("sheng"]) <class 'str'>
+	
+        mysql> insert into chains(name,chain_address) values('河南省','{"sheng":{"pro":"河南省"},"shi":"xx市","xian":"xx县","zhen":"xx乡","street":"xx村"}');
+        Query OK, 1 row affected (0.00 sec)			type("sheng"])	<class 'dict'>
 
 
 ## select中if的用法
