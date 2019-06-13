@@ -188,8 +188,7 @@
         row = cursor.execute(sql, (b,) )
 
 
-#Json字段
-
+## Json字段
 
 ## 查询字段类型为JSON的值 表中数据如下：
     +----+-------+-----+-------+------------------+
@@ -234,8 +233,8 @@
     ROW = cursor.execute(SQL, (5,))
     
     Pro = cursor.fetchall()
-    print(Pro[0]['content'], type(Pro[0]['content']))       <class 'str'>
-    print(type(json.loads(Pro[0]['content'])))              <class 'dict'>
+    print(Pro[0]['content'], type(Pro[0]['content']))       <class 'dict'>
+   
 
 ## 添加JSON数据：
     sql = "insert into goods(name, age, count, content) values(%s, %s, %s, %s)"
@@ -244,7 +243,7 @@
 
 
 
-#select中if的用法#
+## select中if的用法
 
 
     if(sex=0,'女','男') as sex 如果sex等于0 则显示为女 否则显示为男
