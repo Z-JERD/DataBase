@@ -17,7 +17,50 @@ import traceback
 
 
 class Server(unitask.UniTask):
-    """幻灯片数据操作"""
+    """幻灯片数据操作
+    uwsgi 配置文件：master 和 srv_name 必须配置
+        slide:
+          master: master
+          srv_name: slide
+          wsgi-file: srv_slide.py
+          socket: /var/wsgi/slide.socket
+          pidfile:  /var/wsgi/slide.pid
+          daemonize:  /var/wsgi/slide.log
+
+    查看redis中的数据
+        import redis
+        res = redis.Redis(host='10.110.1.99', port=9221, decode_responses=True)
+        res.hgetall('_slide_work')
+        res.delete('_slide_work')
+        res.hget('_slide_work','generate_images:(123, 1)')
+
+
+    redis 中的数据：
+            {
+            'bind_slide_has_picture':
+                    '{  "work": "bind_slide_has_picture",
+                        "name": "bind_slide_has_picture",
+                        "milestone": "2019-05-25 00:0",
+                        "args": {"routine": 1558713600},
+                        "time_create": 1558713610, "time_start": 1558713613, "time_end": 1558713613,
+                        "time_used": 0.009007930755615234, "node_accepted": "dev99", "error": null
+                        }',
+
+            "generate_images:(123, 1, '2019-05-16 10:39:25')":
+                        '{  "work": "generate_images",
+                            "name": "generate_images:(123, 1, \'2019-05-16 10:39:25\')",
+                            "milestone": "2019-05-16 10:39:25",
+                            "args": {"slide_id_uid_time": [123, 1, "2019-05-16 10:39:25"], "execution_time": "2019-05-16 10:39:25"},
+                            "time_create": 1557974365, "time_start": 1557974365, "time_end": 1557974374, "time_used": 9.519343614578247,
+                            "node_accepted": "dev99", "error": null}',
+
+        }
+
+    res.get('_unitask_demo_master')：查看heartbeat的redis信息
+    '{"node": "dev99", "server-id": 99, "intranet": "10.110.1.99", "inner_api_address": ["10.110.1.99], "unitask_ip": "10.110.1.99", "unitask_port": 9221, "heartbeat": 1561014570}'
+
+
+    """
 
     def __init__(self):
         super().__init__()
@@ -103,7 +146,7 @@ class Server(unitask.UniTask):
 
         project = self.db.slide_files.where(invalid=0).select()
         images_works = [
-            ('generate_images', {
+             ('generate_images', {
                 'slide_id_uid_time': (data['id'], data['user_id'], data['last_modify'].strftime('%Y-%m-%d %X')),
                 'execution_time': datetime.datetime.now().strftime('%Y-%m-%d %X')
             }) for data in project if data['picture_milestone'] != data['last_modify']

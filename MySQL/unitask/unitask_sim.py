@@ -10,6 +10,14 @@ import uwsgi
 
 
 class UniTask(object):
+    """
+      需手动将配置文件unitask_sim中的信息存到redis中 masterkey值为key值
+       rs.set(self.work_masterkey, json.dumps(masterinfo))
+      或者：
+        在def heartbeat(self, sig=None)和def do_work(self, sig=None): 去掉：
+                if self.update_master_conf(True) == False:
+                    return
+    """
     unitask_prefix = None
 
     masterkey = '_system_master'
@@ -21,33 +29,20 @@ class UniTask(object):
     workconfig = {}
 
     def __init__(self):
-        """
-            加载配置文件，连接Reids  定义self.sys_master
-
-        """
 
         self.load_config()
 
-        assert self.myself, 'Config not loaded.'
+        assert self.unitask_conf, 'Config not loaded.'
 
         self.puid = uuid.uuid4().hex
 
         self.sys_master = None
 
-        self.update_master_conf()
-        print("-----init----sys_master:%s,unitask_prefix:%s, unitask_port:%s, unitask_mode:%s"%(self.sys_master,self.unitask_prefix, self.unitask_port,self.unitask_mode) )
         return
 
     def load_config(self):
-        print("=====load_config=====")
-
-        with open('/etc/hyjh/myself.yaml', 'r') as fp:
-            self.myself = yaml.load(fp)
-
-        with open('/etc/hyjh/unitask.yaml', 'r') as fp:
+        with open('/etc/hyjh/unitask_sim.yaml', 'r') as fp:
             self.unitask_conf = yaml.load(fp)
-
-        # self.unitask_port = self.myself['unitask_port']
 
         self.service_name = uwsgi.opt.get('srv_name', b'').decode('ascii')
         self.unitask_prefix = self.unitask_prefix if self.unitask_prefix else self.service_name
@@ -66,30 +61,19 @@ class UniTask(object):
         return
 
     def get_one_redis(self):
-        print("=====get_one_redis=====")
-        # 如果uwsgi配置文件中配置了unitask_mode和unitask_port 就连接本地的redis
-        if self.unitask_mode == 'master':
-            return redis.Redis(host='localhost', port=self.unitask_port, decode_responses=True)
         # 连接配置的远程redis
-        for uip in self.unitask_conf['unitask_ip']:
-            try:
-                rs = redis.Redis(host=uip, port=self.unitask_port, decode_responses=True)
-                rs.ping()
-                return rs
-            except redis.ConnectionError:
-
-                pass
+        try:
+            rs = redis.Redis(host=self.unitask_conf['unitask_ip'], port=self.unitask_port, decode_responses=True)
+            rs.ping()
+            return rs
+        except redis.ConnectionError:
+            pass
 
         raise redis.ConnectionError('redis server can not connected')
 
-        return
-
     def update_master_conf(self, force=False):
-        print("=====update_master_conf=====")
-
         if force == False and self.sys_master != None:
             return True
-
         try:
             # 连接到redis
             rs = self.get_one_redis()
@@ -98,57 +82,26 @@ class UniTask(object):
             return True
 
         except Exception as e:
-            print("+++++++++++++++++++++++++++++++++++")
             print(e)
 
         self.sys_master = None
 
         return False
 
-    def get_master_redis(self):
-
-        try:
-
-            rs = redis.Redis(host=self.sys_master['intranet'], port=self.unitask_port,decode_responses=True)
-            rs.ping()
-            return rs
-
-        except redis.ConnectionError:
-            print('%s Pika server not running' % self.masterkey)
-            return
-
-    def system_heartbeat(self, sig=None):
-        print("+++++++++++++++++:system_heartbeat")
-        # 获取redis中self.masterkey的值 如果不存在就新建
-        masterinfo = self.get_one_redis().get(self.masterkey)
-        masterinfo = json.loads(masterinfo) if masterinfo else self.myself.copy()
-
-        if masterinfo['server-id'] != self.myself.get('server-id') and (
-                time.time() - masterinfo.get('heartbeat', 0)) < 60 * 5:
-            return
-
-        masterinfo['heartbeat'] = int(time.time())
-
-        self.get_one_redis().set(self.masterkey, json.dumps(masterinfo))
-
-        return
-
     def heartbeat(self, sig=None):
-        print("+++++++++++++++++:heartbeat")
-
-        if self.update_master_conf(True) == False:
-            return
+        # if self.update_master_conf(True) == False:
+        #     return
 
         try:
-            rs = self.get_master_redis()
+            rs = self.get_one_redis()
         except redis.ConnectionError:
-            print('%s Pika server not running' % self.masterkey)
+            print('%s  server not running' % self.masterkey)
             return
 
         masterinfo = rs.get(self.work_masterkey)
-        masterinfo = json.loads(masterinfo) if masterinfo else self.myself.copy()
+        masterinfo = json.loads(masterinfo) if masterinfo else self.unitask_conf.copy()
 
-        if masterinfo['server-id'] != self.myself.get('server-id') and (
+        if masterinfo['server-id'] != self.unitask_conf.get('server-id') and (
                 time.time() - masterinfo.get('heartbeat', 0)) < 60 * 5:
             return
 
@@ -226,9 +179,13 @@ class UniTask(object):
         if winfs:
 
             wnames = list(zip(*winfs))[0]
+            try:
+                master_redis = self.get_one_redis()
+            except redis.ConnectionError as e:
+                print(e)
+                return
 
-            master_redis = self.get_master_redis()
-
+            # 获取redis中的值
             currentworkstt = master_redis.hmget(self.work_key, wnames)
 
             winfs = {
@@ -245,7 +202,10 @@ class UniTask(object):
 
     def get_work(self):
 
-        master_redis = self.get_master_redis()
+        try:
+            master_redis = self.get_one_redis()
+        except redis.ConnectionError as e:
+            return
 
         wname = master_redis.spop(self.work_pool)
 
@@ -258,23 +218,6 @@ class UniTask(object):
             return
 
         return json.loads(w)
-
-    def master_is_me(self):
-
-        try:
-            rs = self.get_one_redis()
-        except redis.ConnectionError as e:
-            print(e)
-            return
-
-        masterinfo = rs.get(self.masterkey)
-
-        if not masterinfo:
-            return False
-
-        masterinfo = json.loads(masterinfo)
-
-        return bool(masterinfo['server-id'] == self.myself.get('server-id'))
 
     def unitask_master_is_me(self):
 
@@ -291,10 +234,9 @@ class UniTask(object):
 
         masterinfo = json.loads(masterinfo)
 
-        return bool(masterinfo['server-id'] == self.myself.get('server-id'))
+        return bool(masterinfo['server-id'] == self.unitask_conf.get('server-id'))
 
     def routine(self, sig=None):
-        print("+++++++++++++++++:routine")
 
         if not self.unitask_master_is_me():
             return
@@ -309,10 +251,9 @@ class UniTask(object):
         return
 
     def do_work(self, sig=None):
-        print("+++++++++++++++++:do work")
 
-        if self.update_master_conf() == False:
-            return
+        # if self.update_master_conf() == False:
+        #     return
 
         w = self.get_work()
 
@@ -321,18 +262,15 @@ class UniTask(object):
 
         st = time.time()
         w['time_start'] = int(st)
-        w['node_accepted'] = self.myself['node']
+        w['node_accepted'] = self.unitask_conf['node']
 
         ee = None
 
-        if self.unitask_mode == 'master':
-            try:
-                self.redis = self.get_one_redis()
-            except redis.ConnectionError as e:
-                print(e)
-                return
-        else:
-            self.redis = self.get_master_redis()
+        try:
+            self.redis = self.get_one_redis()
+        except redis.ConnectionError as e:
+            print(e)
+            return
 
         try:
             self.redis.hset(self.work_key, w['name'], json.dumps(w))
@@ -357,12 +295,6 @@ class UniTask(object):
         return
 
     def regist_signal(self):
-        print("================:regist_signal---:",self.unitask_mode)
-        if self.unitask_mode == 'master':
-            print("================:regist_signal 1---:")
-            uwsgi.register_signal(1, "", self.system_heartbeat)
-            uwsgi.add_timer(1, 60)
-
         uwsgi.register_signal(2, "", self.heartbeat)
         uwsgi.add_timer(2, 60)
 
