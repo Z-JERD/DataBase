@@ -1,0 +1,126 @@
+###############################建表示例#############################
+
+"""
+create table class(
+	cid int not null auto_increment primary key,
+	caption varchar(250) not null
+)engine=innodb default charset=utf8;
+create table student(
+	sid int not null auto_increment primary key,
+	sname varchar(250) not null,
+	sex enum('男','女') not null default '男',
+	class_id int,
+	CONSTRAINT fk_cid FOREIGN KEY(class_id) REFERENCES class(cid)
+)engine=innodb default charset=utf8;
+create table teacher(
+	tid int not null auto_increment primary key,
+	tname varchar(10)
+)engine=innodb default charset=utf8;
+create table course(
+	cid int not null auto_increment PRIMARY KEY,
+	cname VARCHAR(50) not null,
+	teacher_id int DEFAULT NULL,
+	CONSTRAINT fk_tid FOREIGN KEY(teacher_id ) REFERENCES teacher(tid)
+)ENGINE = INNODB DEFAULT charset=utf8;
+create table score(
+	sid int not null auto_increment primary key,
+	number int,
+	student_id int,
+	course_id int ,
+	CONSTRAINT fk_student FOREIGN KEY(student_id) REFERENCES student(sid),
+    CONSTRAINT fk_course FOREIGN KEY(course_id) REFERENCES course(cid)
+)engine=innodb default charset=utf8;
+"""
+
+#创建Mysql表：User用户表，Order订单表，Orderdetail订单详情，item商品表
+"""
+CREATE TABLE user (
+  id bigint(32) NOT NULL AUTO_INCREMENT COMMENT '客户id(主键)',
+  username varchar(32) NOT NULL COMMENT '客户名称',
+  birthday date DEFAULT NULL COMMENT '客户生日',
+  sex char(1) DEFAULT NULL COMMENT '客户性别',
+  address varchar(256) DEFAULT NULL COMMENT '客户地址',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE orders (
+  id bigint(32) NOT NULL AUTO_INCREMENT COMMENT '客户id(主键)',
+  user_id bigint(32) NOT NULL COMMENT '下单客户id(外键)',
+  number varchar(32) NOT NULL COMMENT '订单号',
+  createtime datetime NOT NULL COMMENT '创建时间',
+  note varchar(32) DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (id),
+  CONSTRAINT FK_user FOREIGN KEY (user_id) REFERENCES user (id)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+CREATE TABLE item (
+  id bigint(32) NOT NULL AUTO_INCREMENT COMMENT 'id(主键)',
+  name varchar(32) NOT NULL COMMENT '商品名称',
+  price float(10,1) NOT NULL COMMENT '商品价格',
+  picture varchar(512) DEFAULT NULL COMMENT '商品图片',
+  createtime datetime DEFAULT NULL COMMENT '生产日期',
+  detail text COMMENT '商品描述',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+CREATE TABLE orderdetail (
+  id bigint(32) NOT NULL AUTO_INCREMENT COMMENT 'id(主键)',
+  order_id bigint(32) NOT NULL COMMENT '订单id',
+  item_id bigint(32) NOT NULL COMMENT '商品id',
+  item_num bigint(32) DEFAULT NULL COMMENT '商品购买数量',
+  PRIMARY KEY (id),
+  CONSTRAINT FK_orders FOREIGN KEY (order_id) REFERENCES orders (id),
+  CONSTRAINT FK_item FOREIGN KEY (item_id) REFERENCES item (id)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+"""
+
+
+
+创建表中常用的字段：
+    unsigned                    是int 无符号,都是正数
+    json                        存数据需要序列化,取出的数据自动做了反序列化处理
+    date                        时间格式：2018-07-18
+    datetime                    时间格式：2019-04-12 08:29:43
+    text                        保存变长的大字符串
+    GENERATED ALWAYS AS         关联json字段中的某个属性，值为该属性的值，自动填充
+    
+
+新增数据后自动添加创建的时间 数据一旦修改,last_modify自动更新
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '幻灯片创建时间',
+  `last_modify` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间'
+  
+  
+ ###############################常用字段示例############################# 
+
+CREATE TABLE `chains` (
+  `id` int(10)  NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '特定ID',
+  `name` varchar(50) NOT NULL COMMENT '院线简称',
+  `code` bigint(20) unsigned DEFAULT NULL COMMENT '影院编码'
+  `comment` text DEFAULT  NULL COMMENT '合同说明',
+  
+  
+  `chain_address` json DEFAULT NULL COMMENT '地址数据：{sheng":"xx","shi":"xx","xian":"xx","zhen":"xx","street":"xxx"}',
+  `sheng` varchar(20) GENERATED ALWAYS AS (json_unquote(json_extract(`chain_address`,'$.sheng'))) VIRTUAL,
+  `shi` varchar(20) GENERATED ALWAYS AS (json_unquote(json_extract(`chain_address`,'$.shi'))) VIRTUAL,
+  `xian` varchar(20) GENERATED ALWAYS AS (json_unquote(json_extract(`chain_address`,'$.xian'))) VIRTUAL,
+  `address` varchar(900) GENERATED ALWAYS AS (concat(json_unquote(json_extract(`chain_address`,'$.sheng')),' ',json_unquote(json_extract(`chain_address`,'$.shi')),' ',json_unquote(json_extract(`chain_address`,'$.xian')),' ',json_unquote(json_extract(`chain_address`,'$.zhen')),' ',json_unquote(json_extract(`chain_address`,'$.street')))) VIRTUAL，
+  
+  `invalid` int(10) NOT NULL DEFAULT '0' COMMENT '标记删除 0：未删除 1：删除',
+  `release_date` date DEFAULT NULL COMMENT '上映时间',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `last_modify` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE  CURRENT_TIMESTAMP COMMENT '最后修改时间'
+
+
+) ENGINE=InnoDB AUTO_INCREMENT=230009 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='院线表'
+  
+  GENERATED ALWAYS AS (json_unquote(json_extract(`chain_address`,'$.sheng'))) VIRTUAL 示例：
+添加chain_address的json数据后，与其关联的字段会自动填充
+
+mysql> insert into chains(name,chain_address) values('河南省','{"sheng":"河南省","shi":"驻马店市","xian":"上蔡县","zhen":"蔡沟乡","street":"赵庄村"}');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from chains;
++--------+-----------------------------+-------------------------------------------------------------------------------------------------------------------+-----------+--------------+-----------+---------------------------------------------------------+
+| id     | name                        | chain_address                                                                                                     | sheng     | shi          | xian      | address                                                 |
++--------+-----------------------------+-------------------------------------------------------------------------------------------------------------------+-----------+--------------+-----------+---------------------------------------------------------+
+| 230009 | 万达影院石家庄院线          | {"shi": "石家庄市", "xian": "正定县", "zhen": "新城铺镇", "sheng": "河北省", "street": "南牛乡"}                  | 河北省    | 石家庄市     | 正定县    | 河北省 石家庄市 正定县 新城铺镇 南牛乡                  |
+| 230010 | 河南省                      | {"shi": "驻马店市", "xian": "上蔡县", "zhen": "蔡沟乡", "sheng": "河南省", "street": "赵庄村"}                    | 河南省    | 驻马店市     | 上蔡县    | 河南省 驻马店市 上蔡县 蔡沟乡 赵庄村                    |
++--------+-----------------------------+-------------------------------------------------------------------------------------------------------------------+-----------+--------------+-----------+---------------------------------------------------------+
+  

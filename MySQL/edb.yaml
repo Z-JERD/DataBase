@@ -1,0 +1,71 @@
+
+connection:
+  sqllog: print
+  retrys: 3
+
+# host: 
+# user:
+# passwd:
+# db:
+
+arch2018:
+  host: 10.110.1.90
+  user: php
+  passwd: MySQL57.huayingjuhe.com
+  db: arch2018
+
+fdm:
+  host: 10.110.1.90
+  user: php
+  passwd: MySQL57.huayingjuhe.com
+  db: fdm
+
+#publish_w6:
+#  host: 10.110.1.82
+#  port: 12030
+#  user: tatooine2
+#  passwd: tatooine2.Midas.W6.huayingjuhe.com
+#  db: Bestine
+
+publish_db:
+  host: 10.110.1.82
+  port: 14030
+  user: bestine
+  passwd: bestine.Midas.BGW.huayingjuhe.com
+  db: Bestine
+
+
+zhuanzi:
+  host: 10.110.1.82
+  port: 14030
+  user: zhuanzi
+  passwd: zhuanzi.Midas.BGW.huayingjuhe.com
+  db: zhuanzi
+
+ems:
+  host: 10.110.1.90
+  port: 3306
+  user: php
+  passwd: MySQL57.huayingjuhe.com
+  db: ems
+
+bpm:
+  host: 10.110.1.82
+  port: 13030
+  user: tatooine2
+  passwd: tatooine2.W6.huayingjuhe.com
+  db: bpm 
+
+archgf:
+  host: 10.110.1.90
+  user: php
+  passwd: MySQL57.huayingjuhe.com
+  db: archgf
+
+publish_exterior:
+  host: 10.110.1.82
+  user: bestine
+  passwd: bestine.Midas.BGW.huayingjuhe.com
+  port: 14030
+  db: Bestine
+
