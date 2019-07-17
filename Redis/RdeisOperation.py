@@ -1,4 +1,6 @@
 """
+Python操作redis：https://cloud.tencent.com/developer/article/1151834
+
 windows环境下：
     1.开启服务端：在cmd下切换到redis的安装目录下执行：redis-server.exe redis.windows.conf
     2.开启客户端：redis-cli.exe -h 127.0.0.1 -p 6379
