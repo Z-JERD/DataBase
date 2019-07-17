@@ -1,7 +1,8 @@
 node: dev99
 server-id: 99
-intranet: 10.110.1.99
+intranet: 10.110.1.111
 inner_api_address:
-       - 10.110.1.99
-unitask_ip: 10.110.1.99
-unitask_port: 9221
+       - 10.110.1.111
+unitask_ip: 10.110.1.111
+unitask_port: 6379
+
