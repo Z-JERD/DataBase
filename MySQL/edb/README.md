@@ -1,6 +1,6 @@
  ## 操作数据库方式：
 
-###1.查询：
+### 1.查询：
     1.使用原生sql
         self.db_fdm("select *  from fdm_message where receiver=%s and read_status=1 order by id desc limit 5" % me['user_id'])
     2.acct_users 表名

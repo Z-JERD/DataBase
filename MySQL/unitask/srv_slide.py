@@ -9,7 +9,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 import ewsgi
-from edb import edb
+import edb
 import tools
 import unitask
 import hxsto
