@@ -155,4 +155,6 @@ Redis操作：
             1.sdiff(name1,name2) 命令返回给定集合之间的差集
             2.sinter(name,name2) 返回给定所有集合的交集
             3.sunion(name1,name2)返回给定所有集合的并集
+	    
+     有序集合操作：https://www.cnblogs.com/huchong/p/9656882.html#_label8	   
 """
