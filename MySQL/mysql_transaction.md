@@ -17,6 +17,8 @@
 
     4.持久性：事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。
     
+## 参考资料：https://zhuanlan.zhihu.com/p/65281198
+    
 ## 事务控制语句：
     1.BEGIN 或 START TRANSACTION 显式地开启一个事务；
     
