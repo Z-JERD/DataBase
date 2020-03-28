@@ -77,7 +77,13 @@
         create table jerry like jerd
 
 
-
+# utf8和utf8mb4的区别：
+    utf8mb4：MySQL在5.5.3之后增加的编码,专门用来兼容四字节的unicode
+    为什么使用utf8mb4:
+	mysql支持的utf8编码最大字符串为3个字节,如果遇到四个字节的宽字符就会插入异常。任何不在基本多文本平面的Unicode字符
+	都无法使用MySQL的utf8字符集存储，比如Emoji(小黄脸表情)
+    缺点：
+	utf8mb4会占用更多的存储空间
 
 # 常用的数据类型
     create table jerd(
@@ -86,23 +92,25 @@
     )engine=innodb default charset=utf8;
     
     1.int 存储年龄,等级,id,各种号码等
+    
     2.小数型:m总个数 d小数位数
         1.decimal(m,d) 定点类型,存放的是精确值
         2.float(m,d) 单精度(8位精度)浮点型,存放近似值
         3.double(m,d) 双精度(16位精度)浮点型,存放近似值
+    
     3.字符型
       1.char(m) 表示固定长度的字符串,浪费空间,存取速度快
       2.varchar(m) 变长,精准,节省空间,存取速度慢
       3.text   用于保存变长的大字符串
+    
     4.日期类型
         1.DATE()       日期值YYYY-MM-DD
         2.TIME()       时间值  HH:MM:SS
         3.YEAR()       年份值
         4.DATETIME()   混合日期和时间值 YYYY-MM-DD HH:MM:SS
         5.TIMESTAMP()  时间戳
-    5.JSON类型
-
-
+    
+    5.JSON类型：  5.7 版本中，才正式引入 JSON数据类型
 
 # 约束条件
 
@@ -224,7 +232,7 @@
 
 
 
-# 数据的增,删,改,查操作
+# 数据的增,删,改,查操作（CRUD）
 
 ## 1.增加数据 Insert:values 和 set
     
