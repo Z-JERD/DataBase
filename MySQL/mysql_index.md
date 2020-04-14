@@ -1,3 +1,6 @@
+# 索引原理：https://zhuanlan.zhihu.com/p/62018452
+# 组合索引： https://zhuanlan.zhihu.com/p/115778804
+
 # 索引概念
     索引:
             简单的说,相当于图书的目录,可以帮助用户快速的找到需要的内容.
